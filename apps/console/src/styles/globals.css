@@ -88,6 +88,9 @@
   body {
     @apply bg-neutral-50 text-foreground;
   }
+  button {
+    cursor: pointer;
+  }
 }
 
 @media (hover: hover) {

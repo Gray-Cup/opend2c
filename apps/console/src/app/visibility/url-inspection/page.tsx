@@ -58,7 +58,7 @@ export default function URLInspectionPage() {
             </svg>
             <input
               type="text"
-              placeholder="/products/darjeeling-first-flush"
+              placeholder="https://your-store.com/products/example"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               className="w-full pl-9 pr-4 py-2.5 text-sm border border-gray-200 rounded-md bg-white text-gray-800 placeholder-gray-300 focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-100 font-mono transition-all"
@@ -72,7 +72,7 @@ export default function URLInspectionPage() {
           </button>
         </div>
         <p className="mt-1.5 text-[11px] text-gray-400">
-          Try: /products/darjeeling-first-flush · /products/chikmagalur-robusta · /products/culinary-matcha-barista
+          Enter a full URL or path to inspect its indexing status.
         </p>
       </form>
 

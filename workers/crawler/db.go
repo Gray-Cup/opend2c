@@ -14,7 +14,7 @@ var db *sql.DB
 func initDB() error {
 	dsn := os.Getenv("DATABASE_URL")
 	if dsn == "" {
-		dsn = "postgres://postgres:postgres@localhost:5432/opend2c?sslmode=disable"
+		dsn = "postgres://localhost:5432/opend2c?sslmode=disable"
 	}
 	var err error
 	db, err = sql.Open("postgres", dsn)

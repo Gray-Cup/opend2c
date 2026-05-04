@@ -64,12 +64,15 @@ export default function PerformancePage() {
     "px-4 py-2.5 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-wide select-none cursor-pointer hover:text-gray-600 transition-colors";
   const thRightClass = `${thClass} text-right`;
 
-  const totals = useMemo(() => ({
-    clicks: TOP_QUERIES.reduce((s, q) => s + q.clicks, 0),
-    impressions: TOP_QUERIES.reduce((s, q) => s + q.impressions, 0),
-    avgCtr: (TOP_QUERIES.reduce((s, q) => s + q.ctr, 0) / TOP_QUERIES.length).toFixed(1),
-    avgPosition: (TOP_QUERIES.reduce((s, q) => s + q.position, 0) / TOP_QUERIES.length).toFixed(1),
-  }), []);
+  const totals = useMemo(() => {
+    const n = TOP_QUERIES.length;
+    return {
+      clicks:      TOP_QUERIES.reduce((s, q) => s + q.clicks, 0),
+      impressions: TOP_QUERIES.reduce((s, q) => s + q.impressions, 0),
+      avgCtr:      n > 0 ? (TOP_QUERIES.reduce((s, q) => s + q.ctr, 0) / n).toFixed(1) : "—",
+      avgPosition: n > 0 ? (TOP_QUERIES.reduce((s, q) => s + q.position, 0) / n).toFixed(1) : "—",
+    };
+  }, []);
 
   return (
     <div className="px-10 py-8 max-w-[1200px]">
@@ -83,10 +86,10 @@ export default function PerformancePage() {
       {/* Summary metrics */}
       <div className="grid grid-cols-4 gap-3 mb-5">
         {[
-          { label: "Total Clicks", value: totals.clicks.toLocaleString() },
-          { label: "Total Impressions", value: totals.impressions.toLocaleString() },
-          { label: "Avg. CTR", value: `${totals.avgCtr}%` },
-          { label: "Avg. Position", value: totals.avgPosition },
+          { label: "Total Clicks",       value: TOP_QUERIES.length > 0 ? totals.clicks.toLocaleString() : "—" },
+          { label: "Total Impressions",  value: TOP_QUERIES.length > 0 ? totals.impressions.toLocaleString() : "—" },
+          { label: "Avg. CTR",           value: totals.avgCtr === "—" ? "—" : `${totals.avgCtr}%` },
+          { label: "Avg. Position",      value: totals.avgPosition },
         ].map((m) => (
           <div key={m.label} className="bg-white border border-gray-200 rounded-md px-4 py-3.5">
             <p className="text-[10px] text-gray-400 uppercase tracking-wide font-medium">{m.label}</p>
