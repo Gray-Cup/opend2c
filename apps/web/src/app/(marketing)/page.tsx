@@ -47,7 +47,7 @@ export default async function Home() {
           <h1 className="text-black text-3xl sm:text-4xl lg:text-5xl font-medium sm:leading-[60px] mb-10">
             Open Free Marketplace
             <br />
-            for <span>D2C</span>.
+            for <span>D2C</span>
             <br />
             Companies.
           </h1>
