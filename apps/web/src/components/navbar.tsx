@@ -73,7 +73,7 @@ export function Navbar() {
               href="/government-tenders"
               className="hidden md:block rounded-md px-3 py-2 text-sm font-medium text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900 transition-colors"
             >
-              Gov Tenders
+              Gov Schemes
             </Link>
             <Link
               href="/about"
@@ -142,7 +142,7 @@ export function Navbar() {
 
           <nav className="flex flex-col gap-1 text-sm font-medium">
             {[
-              ["Gov Tenders", "/government-tenders"],
+              ["Gov Schemes", "/government-tenders"],
               ["About", "/about"],
             ].map(([label, href]) => (
               <Link

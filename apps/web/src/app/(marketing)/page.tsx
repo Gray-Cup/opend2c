@@ -45,11 +45,11 @@ export default async function Home() {
       <div className="mx-auto px-4 lg:px-6 h-auto my-10">
         <div className="pt-10 pb-20 max-w-6xl mx-auto md:pb-10">
           <h1 className="text-black text-3xl sm:text-4xl lg:text-5xl font-medium sm:leading-[60px] mb-10">
-            Tea, Coffee,
+            Open Free Marketplace
             <br />
-            and <span>Liquid</span>.
+            for <span>D2C</span>.
             <br />
-            Poured into Humans.
+            Companies.
           </h1>
           <ProductBrowser products={products} />
         </div>
