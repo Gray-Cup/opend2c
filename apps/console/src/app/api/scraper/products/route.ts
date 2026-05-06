@@ -4,12 +4,18 @@ import { bulkUpdateProducts, deleteProducts, listProducts, updateProduct } from 
 
 const STATUSES = new Set(["draft", "active", "archived"]);
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   const session = await getServerSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const products = await listProducts(session.user.id);
-  return NextResponse.json(products);
+  const p      = req.nextUrl.searchParams;
+  const limit  = Math.min(Math.max(Number(p.get("limit"))  || 10, 1), 100);
+  const offset = Math.max(Number(p.get("offset")) || 0, 0);
+  const status = p.get("status") ?? "all";
+  const q      = p.get("q")?.trim() ?? "";
+
+  const result = await listProducts(session.user.id, { limit, offset, status, q });
+  return NextResponse.json({ ...result, hasMore: offset + limit < result.total });
 }
 
 export async function PATCH(req: NextRequest) {

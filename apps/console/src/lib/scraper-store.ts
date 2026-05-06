@@ -212,19 +212,42 @@ export async function upsertProducts(
   }
 }
 
-export async function listProducts(userId: string): Promise<SavedProduct[]> {
+export async function listProducts(
+  userId: string,
+  opts: { limit: number; offset: number; status?: string; q?: string } = { limit: 10, offset: 0 },
+): Promise<{ products: SavedProduct[]; total: number }> {
   await ensureScraperTables();
-  const { rows } = await db.query<SavedProduct>(
-    `
-      SELECT id, sitemap_id, source_url, title, image, shop, price, currency,
-             status, notes, created_at::text, updated_at::text
-      FROM scraper_products
-      WHERE user_id = $1
-      ORDER BY updated_at DESC, id DESC
-    `,
-    [userId],
-  );
-  return rows;
+
+  const conditions: string[] = ["user_id = $1"];
+  const values: unknown[]   = [userId];
+
+  if (opts.status && opts.status !== "all") {
+    values.push(opts.status);
+    conditions.push(`status = $${values.length}`);
+  }
+
+  if (opts.q) {
+    values.push(`%${opts.q.toLowerCase()}%`);
+    const idx = values.length;
+    conditions.push(`(LOWER(title) LIKE $${idx} OR LOWER(shop) LIKE $${idx})`);
+  }
+
+  const where = conditions.join(" AND ");
+
+  const [{ rows: countRows }, { rows }] = await Promise.all([
+    db.query<{ count: string }>(`SELECT COUNT(*)::text AS count FROM scraper_products WHERE ${where}`, values),
+    db.query<SavedProduct>(
+      `SELECT id, sitemap_id, source_url, title, image, shop, price, currency,
+              status, notes, created_at::text, updated_at::text
+       FROM scraper_products
+       WHERE ${where}
+       ORDER BY updated_at DESC, id DESC
+       LIMIT $${values.length + 1} OFFSET $${values.length + 2}`,
+      [...values, opts.limit, opts.offset],
+    ),
+  ]);
+
+  return { products: rows, total: Number(countRows[0]?.count ?? 0) };
 }
 
 export async function updateProduct(
