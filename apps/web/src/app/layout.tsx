@@ -4,6 +4,7 @@ import { Poppins, Inter, Instrument_Sans, Public_Sans } from "next/font/google";
 import "@/styles/globals.css";
 import { cn } from "@/lib/utils";
 import RootProviders from "@/components/providers";
+import { TopLoader } from "@/components/top-loader";
 import { Analytics } from "@vercel/analytics/next";
 import { generateTitle, generateDescription } from "@/lib/seo";
 
@@ -109,6 +110,7 @@ export default function RootLayout({
           fontPublicSans.variable,
         )}
       >
+        <TopLoader />
         <Analytics />
         <RootProviders>{children}</RootProviders>
       </body>

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
+import { startTopLoader } from "@/components/top-loader";
 
 function SearchForm({
   className,
@@ -23,6 +24,7 @@ function SearchForm({
     const trimmed = q.trim();
     if (!trimmed) return;
     onSubmit?.();
+    startTopLoader();
     router.push(`/search?q=${encodeURIComponent(trimmed)}`);
   }
 
