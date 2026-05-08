@@ -1,34 +1,32 @@
 package main
 
 import (
-	"database/sql"
+	"context"
 	"encoding/json"
 	"os"
 	"time"
 
-	_ "github.com/lib/pq"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-var db *sql.DB
+var db *pgxpool.Pool
 
 func initDB() error {
 	dsn := os.Getenv("DATABASE_URL")
-	if dsn == "" {
-		dsn = "postgres://localhost:5432/opend2c?sslmode=disable"
-	}
+
 	var err error
-	db, err = sql.Open("postgres", dsn)
+	db, err = pgxpool.New(context.Background(), dsn)
 	if err != nil {
 		return err
 	}
-	if err := db.Ping(); err != nil {
+	if err := db.Ping(context.Background()); err != nil {
 		return err
 	}
 	return migrate()
 }
 
 func migrate() error {
-	_, err := db.Exec(`
+	_, err := db.Exec(context.Background(), `
 		CREATE TABLE IF NOT EXISTS crawl_jobs (
 			id           TEXT PRIMARY KEY,
 			sites        TEXT NOT NULL,
@@ -66,7 +64,7 @@ func migrate() error {
 
 func dbCreateJob(j *Job) error {
 	sites, _ := json.Marshal(j.Sites)
-	_, err := db.Exec(
+	_, err := db.Exec(context.Background(),
 		`INSERT INTO crawl_jobs (id, sites, max_products, status, created_at, updated_at)
 		 VALUES ($1, $2, $3, $4, $5, $6)`,
 		j.ID, string(sites), j.MaxProducts, j.Status, j.CreatedAt, j.UpdatedAt,
@@ -75,7 +73,7 @@ func dbCreateJob(j *Job) error {
 }
 
 func dbSetStatus(id string, status JobStatus) error {
-	_, err := db.Exec(
+	_, err := db.Exec(context.Background(),
 		`UPDATE crawl_jobs SET status=$1, updated_at=NOW() WHERE id=$2`,
 		string(status), id,
 	)
@@ -83,7 +81,7 @@ func dbSetStatus(id string, status JobStatus) error {
 }
 
 func dbUpdateProgress(id string, scraped, skipped, total int) error {
-	_, err := db.Exec(
+	_, err := db.Exec(context.Background(),
 		`UPDATE crawl_jobs SET scraped=$1, skipped=$2, total=$3, updated_at=NOW() WHERE id=$4`,
 		scraped, skipped, total, id,
 	)
@@ -91,7 +89,7 @@ func dbUpdateProgress(id string, scraped, skipped, total int) error {
 }
 
 func dbSetError(id, msg string) error {
-	_, err := db.Exec(
+	_, err := db.Exec(context.Background(),
 		`UPDATE crawl_jobs SET status='failed', error=$1, updated_at=NOW() WHERE id=$2`,
 		msg, id,
 	)
@@ -100,7 +98,7 @@ func dbSetError(id, msg string) error {
 
 func dbInsertProduct(jobID string, p *Product) (int64, error) {
 	var pid int64
-	err := db.QueryRow(
+	err := db.QueryRow(context.Background(),
 		`INSERT INTO crawl_products (job_id, name, image, shop) VALUES ($1,$2,$3,$4) RETURNING id`,
 		jobID, p.Name, p.Image, p.Shop,
 	).Scan(&pid)
@@ -109,7 +107,7 @@ func dbInsertProduct(jobID string, p *Product) (int64, error) {
 
 func dbInsertVariants(productID int64, variants []Variant) error {
 	for _, v := range variants {
-		if _, err := db.Exec(
+		if _, err := db.Exec(context.Background(),
 			`INSERT INTO crawl_variants (product_id, label, price, currency, url) VALUES ($1,$2,$3,$4,$5)`,
 			productID, v.Label, v.Price, v.Currency, v.URL,
 		); err != nil {
@@ -122,7 +120,7 @@ func dbInsertVariants(productID int64, variants []Variant) error {
 // ---- Read ----
 
 func dbGetJob(id string) (*Job, error) {
-	row := db.QueryRow(
+	row := db.QueryRow(context.Background(),
 		`SELECT id, sites, max_products, status, scraped, skipped, total, COALESCE(error,''), created_at, updated_at
 		 FROM crawl_jobs WHERE id=$1`, id,
 	)
@@ -130,7 +128,7 @@ func dbGetJob(id string) (*Job, error) {
 }
 
 func dbListJobs() ([]*Job, error) {
-	rows, err := db.Query(
+	rows, err := db.Query(context.Background(),
 		`SELECT id, sites, max_products, status, scraped, skipped, total, COALESCE(error,''), created_at, updated_at
 		 FROM crawl_jobs ORDER BY created_at DESC`,
 	)
@@ -150,7 +148,7 @@ func dbListJobs() ([]*Job, error) {
 }
 
 func dbGetProducts(jobID string) ([]Product, error) {
-	rows, err := db.Query(
+	rows, err := db.Query(context.Background(),
 		`SELECT id, name, image, shop FROM crawl_products WHERE job_id=$1 ORDER BY id`, jobID,
 	)
 	if err != nil {
@@ -176,7 +174,7 @@ func dbGetProducts(jobID string) ([]Product, error) {
 	}
 
 	for i, r := range prows {
-		vrows, err := db.Query(
+		vrows, err := db.Query(context.Background(),
 			`SELECT COALESCE(label,''), price, COALESCE(currency,''), COALESCE(url,'')
 			 FROM crawl_variants WHERE product_id=$1 ORDER BY id`, r.id,
 		)

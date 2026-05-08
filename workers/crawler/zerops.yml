@@ -1,0 +1,18 @@
+zerops:
+  - setup: crawler
+    build:
+      base: go@1
+
+      buildCommands:
+        - go get github.com/jackc/pgx/v5
+        - go mod tidy
+        - go build -o crawler .
+
+      deployFiles: crawler
+
+    run:
+      base: go@1
+      ports:
+        - port: 8080
+          httpSupport: true
+      start: ./crawler
