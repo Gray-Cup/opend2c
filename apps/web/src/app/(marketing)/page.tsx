@@ -44,13 +44,19 @@ export default async function Home() {
       />
       <div className="mx-auto px-4 lg:px-6 h-auto my-10">
         <div className="pt-10 pb-20 max-w-6xl mx-auto md:pb-10">
-          <h1 className="text-black text-3xl sm:text-4xl lg:text-5xl font-medium sm:leading-[60px] mb-10">
+          <h1 className="text-black text-3xl sm:text-4xl lg:text-5xl font-medium sm:leading-[60px] mb-6">
             Open Free Marketplace
             <br />
             for <span>D2C</span>
             <br />
             Companies.
           </h1>
+          <a
+            href="https://console.opend2c.com"
+            className="inline-block mb-10 rounded-md bg-neutral-900 px-5 py-2.5 text-sm font-medium text-white hover:bg-neutral-700 transition-colors"
+          >
+            List your products →
+          </a>
           <ProductBrowser products={products} />
         </div>
       </div>

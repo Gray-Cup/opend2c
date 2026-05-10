@@ -85,16 +85,16 @@ export function Navbar() {
             </Link>
 
             <div className="hidden lg:flex items-center gap-2 ml-2">
-              <Link href="/login" target="_blank">
+              <Link href="/login">
                 <Button variant="redoutline" size="sm">
                   Login
                 </Button>
               </Link>
-              <a href="/register" target="_blank" rel="noopener">
+              <Link href="/register">
                 <Button variant="gray" size="sm">
                   Register
                 </Button>
-              </a>
+              </Link>
             </div>
 
             {/* Hamburger */}
@@ -159,24 +159,16 @@ export function Navbar() {
           </nav>
 
           <div className="mt-6 flex flex-col gap-2">
-            <Link
-              href="https://b2b.graycup.in"
-              target="_blank"
-              onClick={() => setMenuOpen(false)}
-            >
-              <Button variant="lightgray" size="sm" className="w-full">
-                B2B Store
+            <Link href="/login" onClick={() => setMenuOpen(false)}>
+              <Button variant="redoutline" size="sm" className="w-full">
+                Login
               </Button>
             </Link>
-            <a
-              href="https://graycup.in/"
-              target="_blank"
-              onClick={() => setMenuOpen(false)}
-            >
-              <Button variant="black" size="sm" className="w-full">
-                Online Store
+            <Link href="/register" onClick={() => setMenuOpen(false)}>
+              <Button variant="gray" size="sm" className="w-full">
+                Register
               </Button>
-            </a>
+            </Link>
           </div>
         </aside>
       </div>
