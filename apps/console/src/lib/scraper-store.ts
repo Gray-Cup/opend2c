@@ -169,6 +169,22 @@ export async function markSitemapFailed(id: number, error: string) {
   );
 }
 
+export async function deleteSitemap(id: number, userId: string) {
+  await db.query(
+    `DELETE FROM scraper_sitemaps WHERE id=$1 AND user_id=$2`,
+    [id, userId],
+  );
+}
+
+export async function resetSitemapForResync(id: number, userId: string) {
+  await db.query(
+    `UPDATE scraper_sitemaps
+     SET status='running', progress_scraped=0, progress_total=0, error=NULL, updated_at=NOW()
+     WHERE id=$1 AND user_id=$2`,
+    [id, userId],
+  );
+}
+
 export async function upsertProducts(
   userId: string,
   sitemapId: number,
