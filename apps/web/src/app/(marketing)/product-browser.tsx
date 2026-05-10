@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Search } from "lucide-react";
 
 type Product = {
@@ -13,10 +13,21 @@ type Product = {
   currency: string | null;
 };
 
+function shuffle<T>(arr: T[]): T[] {
+  const out = [...arr];
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  return out;
+}
+
 export default function ProductBrowser({ products }: { products: Product[] }) {
   const [query, setQuery] = useState("");
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const shuffled = useMemo(() => shuffle(products), []);
 
-  const filtered = products.filter((p) => {
+  const filtered = shuffled.filter((p) => {
     const q = query.toLowerCase();
     return (
       !q ||
