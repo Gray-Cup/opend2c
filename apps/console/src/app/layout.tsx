@@ -4,7 +4,6 @@ import { Poppins, Inter, Instrument_Sans, Public_Sans } from "next/font/google";
 import "@/styles/globals.css";
 import { cn } from "@/lib/utils";
 import RootProviders from "@/components/providers";
-import { Analytics } from "@vercel/analytics/next";
 import { generateTitle, generateDescription } from "@/lib/seo";
 
 const fontSans = Inter({
@@ -109,7 +108,6 @@ export default function RootLayout({
           fontPublicSans.variable,
         )}
       >
-        <Analytics />
         <RootProviders>{children}</RootProviders>
       </body>
     </html>

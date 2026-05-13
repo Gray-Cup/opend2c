@@ -544,6 +544,55 @@ export async function getClickAnalytics(startDate: Date, endDate: Date): Promise
   };
 }
 
+export type IssueProduct = {
+  id: number;
+  title: string;
+  shop: string;
+  source_url: string;
+  image: string | null;
+  price: string | null;
+  issues: string[];
+};
+
+export type ProductIssuesSummary = {
+  total: number;
+  noImage: number;
+  noPrice: number;
+  products: IssueProduct[];
+};
+
+export async function getProductIssuesSummary(userId: string): Promise<ProductIssuesSummary> {
+  await ensureScraperTables();
+  const { rows } = await db.query<{
+    id: number; title: string; shop: string; source_url: string;
+    image: string | null; price: string | null;
+  }>(
+    `SELECT id, title, shop, source_url, image, price
+     FROM scraper_products
+     WHERE user_id = $1
+       AND status != 'archived'
+       AND (image IS NULL OR price IS NULL OR price = '')
+     ORDER BY updated_at DESC
+     LIMIT 50`,
+    [userId],
+  );
+
+  const products: IssueProduct[] = rows.map((r) => ({
+    ...r,
+    issues: [
+      ...(!r.image           ? ["No image"]  : []),
+      ...(!r.price || r.price === "" ? ["No price"]  : []),
+    ],
+  }));
+
+  return {
+    total:   products.length,
+    noImage: rows.filter((r) => !r.image).length,
+    noPrice: rows.filter((r) => !r.price || r.price === "").length,
+    products,
+  };
+}
+
 export async function trackProductClick(productId: number): Promise<void> {
   await ensureScraperTables();
   await Promise.all([
@@ -590,18 +639,27 @@ export async function syncCrawlerProducts(
   }
 
   for (const p of products) {
+    const hasIssues = !p.image || !p.price;
+    const status = hasIssues ? "draft" : "active";
     await db.query(
       `INSERT INTO scraper_products
          (sitemap_id, user_id, source_url, title, image, shop, price, currency, status)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'active')
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
        ON CONFLICT (user_id, source_url) DO UPDATE SET
-         title = EXCLUDED.title,
-         image = EXCLUDED.image,
-         shop = EXCLUDED.shop,
-         price = EXCLUDED.price,
+         title    = EXCLUDED.title,
+         image    = EXCLUDED.image,
+         shop     = EXCLUDED.shop,
+         price    = EXCLUDED.price,
          currency = EXCLUDED.currency,
+         status   = CASE
+           WHEN scraper_products.status = 'active' AND ($5::text IS NULL OR $7::text IS NULL OR $7::text = '')
+           THEN 'draft'
+           WHEN scraper_products.status = 'draft'  AND ($5::text IS NOT NULL AND $7::text IS NOT NULL AND $7::text != '')
+           THEN 'active'
+           ELSE scraper_products.status
+         END,
          updated_at = NOW()`,
-      [sitemapId, systemUserId, p.source_url, p.title, p.image, p.shop, p.price, p.currency],
+      [sitemapId, systemUserId, p.source_url, p.title, p.image, p.shop, p.price, p.currency, status],
     );
   }
 

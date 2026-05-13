@@ -25,6 +25,38 @@ type ClickAnalytics = {
   dailyClicks: DailyClicks[];
 };
 
+type IssueProduct = {
+  id: number;
+  title: string;
+  shop: string;
+  source_url: string;
+  image: string | null;
+  price: string | null;
+  issues: string[];
+};
+
+type IssuesSummary = {
+  total: number;
+  noImage: number;
+  noPrice: number;
+  products: IssueProduct[];
+};
+
+const ISSUE_META: Record<string, { color: string; bg: string; border: string; description: string }> = {
+  "No image": {
+    color:       "text-amber-700",
+    bg:          "bg-amber-50",
+    border:      "border-amber-200",
+    description: "Product has no image — it won't look good on the marketplace.",
+  },
+  "No price": {
+    color:       "text-red-700",
+    bg:          "bg-red-50",
+    border:      "border-red-200",
+    description: "Price is missing — product is hidden from the public marketplace.",
+  },
+};
+
 const PRESETS = [
   { label: "7d",  days: 7  },
   { label: "30d", days: 30 },
