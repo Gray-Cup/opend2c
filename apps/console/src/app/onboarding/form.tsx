@@ -42,7 +42,8 @@ export default function OnboardingForm() {
       return;
     }
 
-    router.push("/visibility");
+    const brand = await res.json().catch(() => ({}));
+    router.push(`/${brand.slug ?? ""}`);
     router.refresh();
   }
 

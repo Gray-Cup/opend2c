@@ -27,17 +27,21 @@ type IconComponent = React.ComponentType<{
 
 type NavItem = { label: string; href: string; Icon: IconComponent };
 
-const NAV_ITEMS: NavItem[] = [
-  { label: "Overview",       href: "/visibility",                Icon: Dashboard    },
-  { label: "Products",       href: "/visibility/products",       Icon: Inventory2   },
-  { label: "URL Inspection", href: "/visibility/url-inspection", Icon: ManageSearch },
-  { label: "Sitemaps",       href: "/visibility/sitemaps",       Icon: AccountTree  },
-  { label: "Brand",          href: "/visibility/brand",          Icon: Bookmark     },
-];
+function buildNav(slug: string): NavItem[] {
+  return [
+    { label: "Overview",       href: `/${slug}`,                 Icon: Dashboard    },
+    { label: "Products",       href: `/${slug}/products`,        Icon: Inventory2   },
+    { label: "URL Inspection", href: `/${slug}/url-inspection`,  Icon: ManageSearch },
+    { label: "Sitemaps",       href: `/${slug}/sitemaps`,        Icon: AccountTree  },
+    { label: "Brand",          href: `/${slug}/brand`,           Icon: Bookmark     },
+  ];
+}
 
-const BOTTOM_ITEMS: NavItem[] = [
-  { label: "Settings", href: "/visibility/settings", Icon: Settings },
-];
+function buildBottomNav(slug: string): NavItem[] {
+  return [
+    { label: "Settings", href: `/${slug}/settings`, Icon: Settings },
+  ];
+}
 
 function initials(name: string) {
   return name
@@ -51,7 +55,7 @@ function slugify(s: string) {
   return s.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 }
 
-export function Sidebar() {
+export function Sidebar({ brandSlug }: { brandSlug: string }) {
   const pathname  = usePathname();
   const router    = useRouter();
   const [brands, setBrands]           = useState<Brand[]>([]);
@@ -73,12 +77,12 @@ export function Sidebar() {
       .then((data: Brand[]) => {
         if (!Array.isArray(data) || data.length === 0) return;
         setBrands(data);
-        const storedId = localStorage.getItem("activeBrandId");
-        const stored   = data.find((b) => String(b.id) === storedId);
-        setActiveBrand(stored ?? data[0]);
+        // Prefer the brand matching the current URL slug
+        const current = data.find((b) => b.slug === brandSlug) ?? data[0];
+        setActiveBrand(current);
       })
       .catch(() => {});
-  }, []);
+  }, [brandSlug]);
 
   useEffect(() => {
     if (!open) return;
@@ -93,8 +97,11 @@ export function Sidebar() {
 
   function selectBrand(b: Brand) {
     setActiveBrand(b);
-    localStorage.setItem("activeBrandId", String(b.id));
     setOpen(false);
+    // Keep the user on the same section (e.g. /old-slug/products → /new-slug/products)
+    const parts = pathname.split("/").filter(Boolean);
+    const section = parts.length > 1 ? parts.slice(1).join("/") : "";
+    router.push(section ? `/${b.slug}/${section}` : `/${b.slug}`);
   }
 
   function openCreateModal() {
@@ -129,9 +136,9 @@ export function Sidebar() {
     }
     const brand: Brand = await res.json();
     setBrands((prev) => [...prev, brand]);
-    selectBrand(brand);
+    setActiveBrand(brand);
     setShowCreate(false);
-    router.push("/visibility/brand");
+    router.push(`/${brand.slug}`);
   }
 
   async function signOut() {
@@ -140,8 +147,9 @@ export function Sidebar() {
     router.push("/login");
   }
 
+  const navItems = buildNav(brandSlug);
   const isActive = (href: string) =>
-    href === "/visibility" ? pathname === "/visibility" : pathname.startsWith(href);
+    href === `/${brandSlug}` ? pathname === `/${brandSlug}` : pathname.startsWith(href);
 
   const bg = activeBrand
     ? `hsl(${(activeBrand.id * 47) % 360} 60% 90%)`
@@ -223,13 +231,13 @@ export function Sidebar() {
         </div>
 
         <nav className="flex-1 px-3 py-3">
-          {NAV_ITEMS.map((item) => (
+          {navItems.map((item) => (
             <SidebarLink key={item.href} item={item} active={isActive(item.href)} />
           ))}
         </nav>
 
         <div className="px-3 py-3 border-t border-black/5 space-y-0.5">
-          {BOTTOM_ITEMS.map((item) => (
+          {buildBottomNav(brandSlug).map((item) => (
             <SidebarLink key={item.href} item={item} active={isActive(item.href)} compact />
           ))}
         </div>

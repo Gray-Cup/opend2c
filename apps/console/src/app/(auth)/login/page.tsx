@@ -20,7 +20,7 @@ export default function LoginPage() {
     const { error } = await authClient.signIn.email({
       email,
       password,
-      callbackURL: "/visibility",
+      callbackURL: "/",
     });
 
     setLoading(false);
@@ -30,7 +30,7 @@ export default function LoginPage() {
       return;
     }
 
-    router.push("/visibility");
+    router.push("/");
     router.refresh();
   }
 

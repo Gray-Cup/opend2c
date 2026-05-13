@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { useParams } from "next/navigation";
 import { format, subDays, startOfDay, endOfDay, eachDayOfInterval, parseISO } from "date-fns";
 import { DateRange } from "react-day-picker";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip } from "recharts";
@@ -77,6 +78,7 @@ function fillDailyGaps(dailyClicks: DailyClicks[], start: Date, end: Date): Dail
 }
 
 export default function OverviewPage() {
+  const { brandSlug } = useParams<{ brandSlug: string }>();
   const [data, setData]             = useState<ClickAnalytics | null>(null);
   const [loading, setLoading]       = useState(true);
   const [calOpen, setCalOpen]       = useState(false);
@@ -295,7 +297,7 @@ export default function OverviewPage() {
 
           {issues.total > 0 && (
             <div className="px-5 py-3 border-t border-gray-100 bg-gray-50/50">
-              <a href="/visibility/products?issues=1" className="text-xs text-blue-600 hover:underline font-medium">
+              <a href={`/${brandSlug}/products?issues=1`} className="text-xs text-blue-600 hover:underline font-medium">
                 Fix issues in Products →
               </a>
             </div>
