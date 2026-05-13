@@ -458,6 +458,21 @@ export async function upsertBrand(
   return rows[0];
 }
 
+export async function listAllBrands(): Promise<(Brand & { product_count: number })[]> {
+  await ensureScraperTables();
+  const { rows } = await db.query<Brand & { product_count: number }>(
+    `SELECT b.id, b.slug, b.name, b.description, b.logo_url, b.website_url,
+            b.created_at::text, b.updated_at::text,
+            COUNT(p.id)::int AS product_count
+     FROM brands b
+     LEFT JOIN scraper_products p
+       ON p.user_id = b.user_id AND p.status = 'active'
+     GROUP BY b.id
+     ORDER BY b.name ASC`,
+  );
+  return rows;
+}
+
 export async function getPublicProducts(
   brandUserId: string,
 ): Promise<SavedProduct[]> {

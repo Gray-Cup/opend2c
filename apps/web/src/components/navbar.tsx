@@ -72,6 +72,12 @@ export function Navbar() {
           {/* RIGHT — nav links + store buttons */}
           <div className="flex items-center gap-1 shrink-0 ml-4">
             <Link
+              href="/brands"
+              className="hidden md:block rounded-md px-3 py-2 text-sm font-medium text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900 transition-colors"
+            >
+              D2C Brands
+            </Link>
+            <Link
               href="/government-tenders"
               className="hidden md:block rounded-md px-3 py-2 text-sm font-medium text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900 transition-colors"
             >
@@ -144,6 +150,7 @@ export function Navbar() {
 
           <nav className="flex flex-col gap-1 text-sm font-medium">
             {[
+              ["D2C Brands", "/brands"],
               ["Gov Schemes", "/government-tenders"],
               ["About", "/about"],
             ].map(([label, href]) => (
