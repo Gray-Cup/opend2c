@@ -162,33 +162,31 @@ export default async function BrandProfilePage({
             )}
           </div>
 
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             {featured.map((product) => (
               <a
                 key={product.id}
                 href={withUTM(product.source_url)}
                 target="_blank"
                 rel="noreferrer"
-                className="group bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-md transition-shadow"
+                className="rounded-xl bg-white hover:shadow-sm transition-all flex flex-col"
               >
-                {product.image ? (
-                  <img
-                    src={product.image}
-                    alt={product.title}
-                    className="w-full h-48 object-cover bg-gray-100"
-                  />
-                ) : (
-                  <div className="w-full h-48 bg-gray-100" />
-                )}
-                <div className="p-3">
-                  <p className="text-sm font-medium text-gray-900 line-clamp-2 group-hover:text-blue-700 transition-colors">
-                    {product.title}
-                  </p>
+                <div className="p-3 pb-0">
+                  <div className="relative h-52 w-full bg-neutral-100 rounded-lg overflow-hidden">
+                    {product.image ? (
+                      <img src={product.image} alt={product.title} className="h-full w-full object-cover" />
+                    ) : (
+                      <div className="h-full w-full bg-neutral-100" />
+                    )}
+                  </div>
+                </div>
+                <div className="p-4 flex flex-col flex-1">
+                  <h3 className="text-sm font-semibold text-neutral-900 mb-1 line-clamp-2">{product.title}</h3>
+                  <p className="text-xs text-neutral-500 mb-2">{product.shop}</p>
                   {product.price && (
-                    <p className="mt-1 text-sm font-semibold text-gray-700">
-                      {product.currency ? `${product.currency} ` : ""}
-                      {product.price}
-                    </p>
+                    <span className="text-sm font-semibold text-neutral-900 mt-auto">
+                      {product.currency ? `${product.currency} ${product.price}` : product.price}
+                    </span>
                   )}
                 </div>
               </a>
