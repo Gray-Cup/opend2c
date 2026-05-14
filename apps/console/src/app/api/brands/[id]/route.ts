@@ -23,12 +23,15 @@ export async function PATCH(req: NextRequest, { params }: Ctx) {
   const { id } = await params;
   const body = await req.json().catch(() => null);
 
-  const input: Record<string, string | null> = {};
+  const input: Record<string, unknown> = {};
   if (typeof body?.name === "string") input.name = body.name.trim();
   if (typeof body?.slug === "string") input.slug = slugify(body.slug);
   if (typeof body?.description === "string") input.description = body.description.trim();
   for (const key of ["logo_url", "banner_url", "website_url", "twitter_url", "instagram_url"] as const) {
     if (key in body) input[key] = typeof body[key] === "string" ? body[key].trim() || null : null;
+  }
+  if (Array.isArray(body?.categories)) {
+    input.categories = body.categories.filter((c: unknown) => typeof c === "string");
   }
 
   try {

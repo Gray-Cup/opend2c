@@ -13,6 +13,7 @@ type Brand = {
   website_url: string | null;
   twitter_url: string | null;
   instagram_url: string | null;
+  categories: string[];
 };
 
 type Product = {
@@ -110,6 +111,15 @@ export default async function BrandProfilePage({
           <h1 className="text-2xl font-semibold text-gray-900">{brand.name}</h1>
           {brand.description && (
             <p className="mt-1.5 text-sm text-gray-500 max-w-xl">{brand.description}</p>
+          )}
+          {brand.categories?.length > 0 && (
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {brand.categories.map((cat) => (
+                <span key={cat} className="px-2.5 py-0.5 rounded-full bg-gray-100 text-gray-600 text-xs font-medium">
+                  {cat}
+                </span>
+              ))}
+            </div>
           )}
           <div className="mt-3 flex flex-wrap items-center gap-3">
             {brand.website_url && (

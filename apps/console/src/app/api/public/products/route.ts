@@ -1,17 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAllActiveProducts } from "@/lib/scraper-store";
+import { getAllActiveProducts, searchActiveProducts } from "@/lib/scraper-store";
 
 export async function GET(req: NextRequest) {
-  const q = req.nextUrl.searchParams.get("q")?.toLowerCase().trim() ?? "";
-  const products = await getAllActiveProducts();
+  const q = req.nextUrl.searchParams.get("q")?.trim() ?? "";
 
-  const results = q
-    ? products.filter(
-        (p) =>
-          p.title.toLowerCase().includes(q) ||
-          p.shop.toLowerCase().includes(q),
-      )
-    : products;
+  const products = q
+    ? await searchActiveProducts(q)
+    : await getAllActiveProducts();
 
-  return NextResponse.json(results);
+  return NextResponse.json(products);
 }

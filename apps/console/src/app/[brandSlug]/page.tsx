@@ -85,6 +85,7 @@ export default function OverviewPage() {
   const [preset, setPreset]         = useState(30);
   const [range, setRange]           = useState<DateRange | undefined>(undefined);
   const [issues, setIssues]         = useState<IssuesSummary | null>(null);
+  const [showCategoryNudge, setShowCategoryNudge] = useState(false);
 
   const fetchData = useCallback(async (start: Date, end: Date) => {
     setLoading(true);
@@ -100,13 +101,26 @@ export default function OverviewPage() {
     }
   }, []);
 
-  // Initial load — last 30 days + issues
+  // Initial load — last 30 days + issues + category nudge
   useEffect(() => {
     const end   = endOfDay(new Date());
     const start = startOfDay(subDays(new Date(), 29));
     fetchData(start, end);
     fetch("/api/issues").then((r) => r.ok && r.json()).then((d) => d && setIssues(d));
-  }, [fetchData]);
+
+    const dismissedKey = `category-nudge-dismissed-${brandSlug}`;
+    if (!localStorage.getItem(dismissedKey)) {
+      fetch("/api/brands")
+        .then((r) => r.ok ? r.json() : [])
+        .then((brands: { slug: string; categories: string[] }[]) => {
+          const current = brands.find((b) => b.slug === brandSlug);
+          if (current && (!current.categories || current.categories.length === 0)) {
+            setShowCategoryNudge(true);
+          }
+        })
+        .catch(() => {});
+    }
+  }, [fetchData, brandSlug]);
 
   function applyPreset(days: number) {
     setPreset(days);
@@ -146,6 +160,30 @@ export default function OverviewPage() {
 
   return (
     <div className="px-6 py-5 max-w-[1200px] space-y-5">
+      {showCategoryNudge && (
+        <div className="flex items-center justify-between gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <span className="text-amber-500 shrink-0 text-base">⚡</span>
+            <p className="text-xs text-amber-800 font-medium">
+              Add categories to your brand so customers can find you when filtering by niche.{" "}
+              <a href={`/${brandSlug}/brand`} className="underline underline-offset-2 hover:text-amber-900">
+                Add now →
+              </a>
+            </p>
+          </div>
+          <button
+            onClick={() => {
+              localStorage.setItem(`category-nudge-dismissed-${brandSlug}`, "1");
+              setShowCategoryNudge(false);
+            }}
+            className="text-amber-400 hover:text-amber-600 shrink-0 text-lg leading-none"
+            aria-label="Dismiss"
+          >
+            ×
+          </button>
+        </div>
+      )}
+
       {/* Summary cards + date picker row */}
       <div className="flex items-start gap-4">
         <div className="grid grid-cols-2 gap-4 flex-1">

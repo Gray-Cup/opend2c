@@ -35,6 +35,7 @@ export async function POST(req: NextRequest) {
       website_url: typeof body?.website_url === "string" ? body.website_url.trim() || null : null,
       twitter_url: typeof body?.twitter_url === "string" ? body.twitter_url.trim() || null : null,
       instagram_url: typeof body?.instagram_url === "string" ? body.instagram_url.trim() || null : null,
+      categories: Array.isArray(body?.categories) ? body.categories.filter((c: unknown) => typeof c === "string") : [],
     });
     return NextResponse.json(brand, { status: 201 });
   } catch (err: unknown) {

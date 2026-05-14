@@ -3,6 +3,7 @@ export const revalidate = 300;
 import type { Metadata } from "next";
 import Link from "next/link";
 import { generateTitle, generateDescription } from "@/lib/seo";
+import { BrandsClient } from "./brands-client";
 
 export const metadata: Metadata = {
   title: generateTitle("D2C Brands"),
@@ -21,6 +22,7 @@ type Brand = {
   website_url: string | null;
   twitter_url: string | null;
   instagram_url: string | null;
+  categories: string[];
   product_count: number;
 };
 
@@ -37,19 +39,6 @@ async function fetchBrands(): Promise<Brand[]> {
   }
 }
 
-function BrandInitial({ name }: { name: string }) {
-  const initials = name
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((w) => w[0]?.toUpperCase() ?? "")
-    .join("");
-  return (
-    <div className="h-12 w-12 rounded-xl bg-neutral-900 flex items-center justify-center text-white text-sm font-semibold shrink-0">
-      {initials}
-    </div>
-  );
-}
-
 export default async function BrandsPage() {
   const brands = await fetchBrands();
 
@@ -64,63 +53,7 @@ export default async function BrandsPage() {
         </p>
       </div>
 
-      {brands.length === 0 ? (
-        <div className="rounded-xl border border-neutral-200 bg-neutral-50 px-8 py-16 text-center">
-          <p className="text-sm text-neutral-500">No brands listed yet.</p>
-          <a
-            href="https://console.opend2c.com"
-            className="mt-4 inline-block rounded-md bg-neutral-900 px-4 py-2 text-sm font-medium text-white hover:bg-neutral-700 transition-colors"
-          >
-            List your brand →
-          </a>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {brands.map((brand) => (
-            <Link
-              key={brand.id}
-              href={`/${brand.slug}`}
-              className="group flex items-start gap-4 rounded-xl border border-neutral-200 bg-white p-4 hover:border-neutral-300 hover:shadow-sm transition-all"
-            >
-              {brand.logo_url ? (
-                <img
-                  src={brand.logo_url}
-                  alt={brand.name}
-                  className="h-12 w-12 rounded-xl object-contain bg-neutral-50 border border-neutral-100 shrink-0"
-                />
-              ) : (
-                <BrandInitial name={brand.name} />
-              )}
-
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold text-neutral-900 group-hover:text-blue-600 transition-colors truncate">
-                  {brand.name}
-                </p>
-                {brand.description ? (
-                  <p className="mt-0.5 text-xs text-neutral-500 line-clamp-2">
-                    {brand.description}
-                  </p>
-                ) : null}
-                <p className="mt-1.5 text-xs text-neutral-400">
-                  {brand.product_count > 0
-                    ? `${brand.product_count} product${brand.product_count !== 1 ? "s" : ""}`
-                    : "No products yet"}
-                </p>
-              </div>
-
-              <svg
-                className="h-4 w-4 text-neutral-300 group-hover:text-neutral-500 transition-colors shrink-0 mt-1"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-              </svg>
-            </Link>
-          ))}
-        </div>
-      )}
+      <BrandsClient brands={brands} />
 
       <div className="mt-12 rounded-xl border border-neutral-200 bg-neutral-50 px-6 py-6 flex items-center justify-between gap-4 flex-wrap">
         <div>

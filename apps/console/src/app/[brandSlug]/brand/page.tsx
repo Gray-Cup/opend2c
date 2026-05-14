@@ -3,6 +3,55 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 
+const BRAND_CATEGORIES = [
+  "Skincare",
+  "Haircare",
+  "Makeup",
+  "Bath & Body",
+  "Personal Care",
+  "Fragrances",
+  "Men's Grooming",
+  "Supplements",
+  "Coffee",
+  "Tea",
+  "Health Drinks",
+  "Beverages",
+  "Snacks",
+  "Food",
+  "Organic Food",
+  "Masala & Spices",
+  "Dry Fruits",
+  "Protein Foods",
+  "Clothing",
+  "Streetwear",
+  "Ethnic Wear",
+  "Activewear",
+  "Innerwear",
+  "Footwear",
+  "Shoes",
+  "Bags",
+  "Accessories",
+  "Jewellery",
+  "Watches",
+  "Home & Living",
+  "Home Decor",
+  "Furniture",
+  "Kitchenware",
+  "Bedding",
+  "Consumer Electronics",
+  "Audio",
+  "Smart Gadgets",
+  "Gaming",
+  "Pet Care",
+  "Baby Care",
+  "Stationery",
+  "Travel",
+  "Outdoor",
+  "Luxury",
+  "Handmade",
+  "Artisan",
+] as const;
+
 type Brand = {
   id: number;
   slug: string;
@@ -13,6 +62,7 @@ type Brand = {
   website_url: string | null;
   twitter_url: string | null;
   instagram_url: string | null;
+  categories: string[];
 };
 
 function slugify(s: string) {
@@ -28,6 +78,7 @@ function BrandForm({ brand, onSaved }: { brand: Brand; onSaved: (b: Brand) => vo
   const [websiteUrl, setWebsite]      = useState(brand.website_url ?? "");
   const [twitterUrl, setTwitter]      = useState(brand.twitter_url ?? "");
   const [instagramUrl, setInstagram]  = useState(brand.instagram_url ?? "");
+  const [categories, setCategories]   = useState<string[]>(brand.categories ?? []);
   const [slugEdited, setSlugEdited]   = useState(true);
   const [saving, setSaving]           = useState(false);
   const [error, setError]             = useState("");
@@ -47,6 +98,7 @@ function BrandForm({ brand, onSaved }: { brand: Brand; onSaved: (b: Brand) => vo
       website_url: websiteUrl.trim() || null,
       twitter_url: twitterUrl.trim() || null,
       instagram_url: instagramUrl.trim() || null,
+      categories,
     };
     const res = await fetch(`/api/brands/${brand.id}`, {
       method: "PATCH",
@@ -83,6 +135,33 @@ function BrandForm({ brand, onSaved }: { brand: Brand; onSaved: (b: Brand) => vo
       <div>
         <label className="block text-xs font-medium text-gray-700 mb-1.5">Bio</label>
         <textarea rows={3} value={description} onChange={(e) => setDesc(e.target.value)} placeholder="Tell customers about your brand…" className={`${inputCls} resize-none`} />
+      </div>
+
+      <div>
+        <label className="block text-xs font-medium text-gray-700 mb-2">Categories</label>
+        <div className="flex flex-wrap gap-2">
+          {BRAND_CATEGORIES.map((cat) => {
+            const selected = categories.includes(cat);
+            return (
+              <button
+                key={cat}
+                type="button"
+                onClick={() =>
+                  setCategories((prev) =>
+                    selected ? prev.filter((c) => c !== cat) : [...prev, cat],
+                  )
+                }
+                className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors ${
+                  selected
+                    ? "bg-gray-900 text-white border-gray-900"
+                    : "bg-white text-gray-600 border-gray-200 hover:border-gray-400"
+                }`}
+              >
+                {cat}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide pt-1">Visuals</p>
