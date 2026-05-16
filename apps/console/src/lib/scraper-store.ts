@@ -553,18 +553,19 @@ export async function listAllBrands(): Promise<(Brand & { product_count: number 
 }
 
 export async function getPublicProducts(
-  brandUserId: string,
+  brandId: number,
 ): Promise<SavedProduct[]> {
   await ensureScraperTables();
   const { rows } = await db.query<SavedProduct>(
     `
-      SELECT id, sitemap_id, source_url, title, image, shop, price, currency,
-             status, notes, created_at::text, updated_at::text
-      FROM scraper_products
-      WHERE user_id = $1 AND status = 'active'
-      ORDER BY updated_at DESC, id DESC
+      SELECT p.id, p.sitemap_id, p.source_url, p.title, p.image, p.shop, p.price, p.currency,
+             p.status, p.notes, p.created_at::text, p.updated_at::text
+      FROM scraper_products p
+      JOIN scraper_sitemaps s ON s.id = p.sitemap_id
+      WHERE s.brand_id = $1 AND p.status = 'active'
+      ORDER BY p.updated_at DESC, p.id DESC
     `,
-    [brandUserId],
+    [brandId],
   );
   return rows;
 }

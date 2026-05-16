@@ -9,6 +9,6 @@ export async function GET(
   const brand = await getBrandBySlug(slug);
   if (!brand) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  const products = await getPublicProducts(brand.user_id);
+  const products = await getPublicProducts(brand.id);
   return NextResponse.json(products);
 }
