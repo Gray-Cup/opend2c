@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { withUTM } from "@/lib/utils";
+import { SortSelect, type SortValue } from "./sort-select";
 
 type Product = {
   id: number;
@@ -11,13 +13,18 @@ type Product = {
   currency: string | null;
 };
 
-async function searchProducts(q: string): Promise<Product[]> {
+const VALID_SORTS = new Set<SortValue>(["relevance", "price_asc", "price_desc", "newest"]);
+
+function parseSort(raw: string | undefined): SortValue {
+  if (raw && VALID_SORTS.has(raw as SortValue)) return raw as SortValue;
+  return "relevance";
+}
+
+async function searchProducts(q: string, sort: SortValue): Promise<Product[]> {
   const consoleUrl = (process.env.CONSOLE_URL ?? "http://localhost:3003").replace(/\/$/, "");
   try {
-    const res = await fetch(
-      `${consoleUrl}/api/public/products?q=${encodeURIComponent(q)}`,
-      { cache: "no-store" },
-    );
+    const params = new URLSearchParams({ q, sort });
+    const res = await fetch(`${consoleUrl}/api/public/products?${params}`, { cache: "no-store" });
     if (!res.ok) return [];
     return res.json();
   } catch {
@@ -28,28 +35,37 @@ async function searchProducts(q: string): Promise<Product[]> {
 export default async function SearchPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<{ q?: string; sort?: string }>;
 }) {
-  const { q = "" } = await searchParams;
+  const { q = "", sort: rawSort } = await searchParams;
   const trimmed = q.trim();
-  const products = trimmed ? await searchProducts(trimmed) : [];
+  const sort = parseSort(rawSort);
+  const products = trimmed ? await searchProducts(trimmed, sort) : [];
 
   return (
     <div className="mx-auto px-4 lg:px-6 max-w-6xl py-10">
-      <div className="mb-8">
-        <h1 className="text-2xl font-semibold text-neutral-900">
-          {trimmed ? (
-            <>Results for &ldquo;{trimmed}&rdquo;</>
-          ) : (
-            "Search"
+      <div className="mb-8 flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <h1 className="text-2xl font-semibold text-neutral-900">
+            {trimmed ? (
+              <>Results for &ldquo;{trimmed}&rdquo;</>
+            ) : (
+              "Search"
+            )}
+          </h1>
+          {trimmed && (
+            <p className="mt-1 text-sm text-neutral-400">
+              {products.length === 0
+                ? "No products found"
+                : `${products.length} ${products.length === 1 ? "product" : "products"}`}
+            </p>
           )}
-        </h1>
-        {trimmed && (
-          <p className="mt-1 text-sm text-neutral-400">
-            {products.length === 0
-              ? "No products found"
-              : `${products.length} ${products.length === 1 ? "product" : "products"}`}
-          </p>
+        </div>
+
+        {trimmed && products.length > 0 && (
+          <Suspense>
+            <SortSelect current={sort} />
+          </Suspense>
         )}
       </div>
 

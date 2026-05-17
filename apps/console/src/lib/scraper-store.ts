@@ -584,27 +584,55 @@ export async function getPublicProducts(
 let productCache: { data: SavedProduct[]; expiresAt: number } | null = null;
 const PRODUCT_CACHE_TTL_MS = 60_000; // 60 seconds
 
-export async function getAllActiveProducts(): Promise<SavedProduct[]> {
+export type SortOption = "relevance" | "price_asc" | "price_desc" | "newest";
+
+function priceOrderClause(dir: "ASC" | "DESC"): string {
+  // Extract leading numeric value from price strings like "INR 1299", "₹599", "1,299.00"
+  return `NULLS LAST, (
+    REGEXP_REPLACE(price, '^[^0-9]*', '') :: numeric
+  ) ${dir} NULLS LAST`;
+}
+
+export async function getAllActiveProducts(sort: SortOption = "newest"): Promise<SavedProduct[]> {
   const now = Date.now();
-  if (productCache && now < productCache.expiresAt) {
+  if (sort === "newest" && productCache && now < productCache.expiresAt) {
     return productCache.data;
   }
   await ensureScraperTables();
+  const orderBy =
+    sort === "price_asc"
+      ? `price IS NULL ${priceOrderClause("ASC")}`
+      : sort === "price_desc"
+        ? `price IS NULL ${priceOrderClause("DESC")}`
+        : `updated_at DESC, id DESC`;
   const { rows } = await db.query<SavedProduct>(
     `
       SELECT id, sitemap_id, source_url, title, image, shop, price, currency,
              status, notes, created_at::text, updated_at::text
       FROM scraper_products
       WHERE status = 'active'
-      ORDER BY updated_at DESC, id DESC
+      ORDER BY ${orderBy}
     `,
   );
-  productCache = { data: rows, expiresAt: now + PRODUCT_CACHE_TTL_MS };
+  if (sort === "newest") {
+    productCache = { data: rows, expiresAt: now + PRODUCT_CACHE_TTL_MS };
+  }
   return rows;
 }
 
-export async function searchActiveProducts(q: string, limit = 60): Promise<SavedProduct[]> {
+export async function searchActiveProducts(q: string, sort: SortOption = "relevance", limit = 60): Promise<SavedProduct[]> {
   await ensureScraperTables();
+  const orderBy =
+    sort === "price_asc"
+      ? `price IS NULL ${priceOrderClause("ASC")}`
+      : sort === "price_desc"
+        ? `price IS NULL ${priceOrderClause("DESC")}`
+        : sort === "newest"
+          ? `created_at DESC, id DESC`
+          : `(
+          ts_rank(to_tsvector('english', title || ' ' || shop), plainto_tsquery('english', $1))
+          + greatest(similarity(title, $1), similarity(shop, $1))
+        ) DESC`;
   const { rows } = await db.query<SavedProduct>(
     `
       SELECT id, sitemap_id, source_url, title, image, shop, price, currency,
@@ -616,11 +644,7 @@ export async function searchActiveProducts(q: string, limit = 60): Promise<Saved
           OR similarity(title, $1) > 0.12
           OR similarity(shop, $1)  > 0.2
         )
-      ORDER BY
-        (
-          ts_rank(to_tsvector('english', title || ' ' || shop), plainto_tsquery('english', $1))
-          + greatest(similarity(title, $1), similarity(shop, $1))
-        ) DESC
+      ORDER BY ${orderBy}
       LIMIT $2
     `,
     [q, limit],
