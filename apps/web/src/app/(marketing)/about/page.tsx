@@ -146,7 +146,7 @@ export default function AboutPage() {
       </section>
 
       <p className="text-xs text-muted-foreground pt-4 border-t border-neutral-100">
-        Open D2C is a platform by Gray Cup Enterprises · Open D2C Enterprises Private Limited · CIN: U47211DL2025PTC457808 · India
+        Open D2C is a platform by Gray Cup Enterprises · Gray Cup Enterprises Private Limited · CIN: U47211DL2025PTC457808 · India
       </p>
     </div>
   );

@@ -159,7 +159,7 @@ export default function RemovalPage() {
         </section>
 
         <p className="text-xs text-muted-foreground pt-4 border-t border-neutral-100">
-          Open D2C Enterprises Private Limited · CIN: U47211DL2025PTC457808 · GST: 06AAMCG4985H1Z4
+          Gray Cup Enterprises Private Limited · CIN: U47211DL2025PTC457808 · GST: 06AAMCG4985H1Z4
         </p>
       </div>
     </div>

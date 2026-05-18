@@ -1,0 +1,29 @@
+zerops:
+  - setup: backend
+    build:
+      base: nodejs@22
+
+      buildCommands:
+        - npm ci
+        - npm run build
+
+      deployFiles:
+        - dist
+        - node_modules
+        - package.json
+
+    run:
+      base: nodejs@22
+      ports:
+        - port: 3000
+          httpSupport: true
+
+      envVariables:
+        # Injected by Zerops from the db service — never leaves the VPC
+        DATABASE_URL: ${db_connectionString}
+        # Internal Zerops hostname for the crawler service
+        CRAWLER_INTERNAL_URL: http://crawler:8080
+        NODE_ENV: production
+        # API_SECRET and WORKER_SECRET: set as secret variables in the Zerops GUI
+
+      start: node dist/index.js

@@ -60,7 +60,7 @@ export default function Footer() {
         {/* Legal text (Apple-style) */}
         <div className="mt-6 text-xs leading-relaxed text-muted-foreground space-y-2">
           <p>
-            Open D2C Enterprises Private Limited is a company incorporated in
+            Gray Cup Enterprises Private Limited is a company incorporated in
             India under the Companies Act, 2013. Corporate Identification Number
             (CIN):{" "}
             <span className="whitespace-nowrap">U47211DL2025PTC457808</span>.
@@ -76,7 +76,7 @@ export default function Footer() {
           </p>
 
           <p>
-            Open D2C Enterprises Private Limited is engaged in the sourcing,
+            Gray Cup Enterprises Private Limited is engaged in the sourcing,
             packaging, trading, and export of tea, coffee, and spices. Export of
             products is subject to applicable laws, customs regulations, and
             foreign trade policies. International shipments may be subject to

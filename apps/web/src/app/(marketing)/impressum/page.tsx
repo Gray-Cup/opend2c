@@ -4,7 +4,7 @@ import { generateTitle, generateDescription } from "@/lib/seo";
 export const metadata: Metadata = {
   title: generateTitle("Impressum"),
   description: generateDescription(
-    "Legal disclosure and company information for Open D2C Enterprises Private Limited including registration details, GST and contact information.",
+    "Legal disclosure and company information for Gray Cup Enterprises Private Limited including registration details, GST and contact information.",
   ),
 };
 
@@ -22,7 +22,7 @@ export default function Impressum() {
 
         <div className="mb-6 space-y-3">
           <p>
-            <strong>Legal Name:</strong> Open D2C Enterprises Private Limited
+            <strong>Legal Name:</strong> Gray Cup Enterprises Private Limited
           </p>
           <p>
             <strong>Registered Address:</strong> FF122, Rodeo Drive Mall, GT

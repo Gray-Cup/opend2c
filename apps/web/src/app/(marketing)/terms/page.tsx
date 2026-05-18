@@ -22,7 +22,7 @@ export default function TermsOfUse() {
           <h2 className="text-xl font-semibold text-neutral-800 mb-3">1. What Open D2C Is</h2>
           <p className="text-neutral-600 mb-3">
             Open D2C is a product discovery and aggregation platform for Indian direct-to-consumer (D2C)
-            brands, owned and operated by Gray Cup Enterprises (Open D2C Enterprises Private Limited).
+            brands, owned and operated by Gray Cup Enterprises (Gray Cup Enterprises Private Limited).
             We index publicly available product data from seller websites — sitemaps, product feeds,
             and structured data — and surface it in a searchable marketplace.
           </p>
@@ -137,7 +137,7 @@ export default function TermsOfUse() {
         <section>
           <h2 className="text-xl font-semibold text-neutral-800 mb-3">10. Limitation of Liability</h2>
           <p className="text-neutral-600">
-            To the maximum extent permitted by applicable law, Open D2C Enterprises Private Limited
+            To the maximum extent permitted by applicable law, Gray Cup Enterprises Private Limited
             shall not be liable for any indirect, incidental, or consequential damages arising from
             your use of the platform, including any reliance on product data displayed here or any
             transaction with a seller you discovered through Open D2C.
@@ -173,7 +173,7 @@ export default function TermsOfUse() {
         </section>
 
         <p className="text-xs text-muted-foreground pt-4 border-t border-neutral-100">
-          Open D2C Enterprises Private Limited · CIN: U47211DL2025PTC457808 · GST: 06AAMCG4985H1Z4
+          Gray Cup Enterprises Private Limited · CIN: U47211DL2025PTC457808 · GST: 06AAMCG4985H1Z4
         </p>
       </div>
     </div>

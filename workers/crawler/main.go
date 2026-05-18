@@ -178,10 +178,15 @@ func processJob(ctx context.Context, jobID string) {
 // syncBatchToConsole pushes one batch of scraped products to the console.
 // When done=true it also signals the console to mark the sitemap as done.
 func syncBatchToConsole(j *Job, products []*Product, scraped, total int, done bool) {
-	consoleURL := os.Getenv("CONSOLE_URL")
-	if consoleURL == "" {
-		log.Printf("[sync %s] CONSOLE_URL not set, skipping sync", j.ID)
-		return
+	// BACKEND_SYNC_URL takes priority (Zerops internal); falls back to CONSOLE_URL for legacy deploys
+	syncURL := os.Getenv("BACKEND_SYNC_URL")
+	if syncURL == "" {
+		consoleURL := os.Getenv("CONSOLE_URL")
+		if consoleURL == "" {
+			log.Printf("[sync %s] BACKEND_SYNC_URL and CONSOLE_URL not set, skipping sync", j.ID)
+			return
+		}
+		syncURL = strings.TrimRight(consoleURL, "/") + "/api/crawler/sync"
 	}
 	secret := os.Getenv("WORKER_SECRET")
 
@@ -236,10 +241,7 @@ func syncBatchToConsole(j *Job, products []*Product, scraped, total int, done bo
 	}
 
 	body, _ := json.Marshal(payload)
-	req, err := http.NewRequest(http.MethodPost,
-		strings.TrimRight(consoleURL, "/")+"/api/crawler/sync",
-		strings.NewReader(string(body)),
-	)
+	req, err := http.NewRequest(http.MethodPost, syncURL, strings.NewReader(string(body)))
 	if err != nil {
 		log.Printf("[sync %s] build request: %v", j.ID, err)
 		return

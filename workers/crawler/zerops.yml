@@ -15,4 +15,8 @@ zerops:
       ports:
         - port: 8080
           httpSupport: true
+      envVariables:
+        # Internal Zerops URL — crawler syncs products directly to the backend, never leaving the VPC
+        BACKEND_SYNC_URL: http://backend:3000/sync
+        # WORKER_SECRET: set as a secret variable in the Zerops GUI
       start: ./crawler

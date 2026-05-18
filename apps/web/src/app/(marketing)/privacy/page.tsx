@@ -21,7 +21,7 @@ export default function PrivacyPage() {
         <section>
           <h2 className="text-xl font-semibold text-neutral-800 mb-3">1. Who we are</h2>
           <p className="text-neutral-600">
-            Open D2C Enterprises Private Limited operates the Open D2C platform — a product discovery
+            Gray Cup Enterprises Private Limited operates the Open D2C platform — a product discovery
             and search platform for Indian direct-to-consumer brands. This Privacy Policy explains how
             we collect and use information when you use our website as a buyer or connect your store
             as a seller.
@@ -159,7 +159,7 @@ export default function PrivacyPage() {
         </section>
 
         <p className="text-xs text-muted-foreground pt-4 border-t border-neutral-100">
-          Open D2C Enterprises Private Limited · CIN: U47211DL2025PTC457808 · GST: 06AAMCG4985H1Z4
+          Gray Cup Enterprises Private Limited · CIN: U47211DL2025PTC457808 · GST: 06AAMCG4985H1Z4
         </p>
       </div>
     </div>
